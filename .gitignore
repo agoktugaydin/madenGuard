@@ -1,0 +1,15 @@
+# Ana dizin
+node_modules/
+build/
+.env
+
+# Frontend klasörü
+frontend/node_modules/
+frontend/build/
+frontend/.env
+
+# Backend klasörü
+backend/node_modules/
+backend/.env
+
+# Diğer özel dosyalar veya dizinler
