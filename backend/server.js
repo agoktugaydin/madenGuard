@@ -34,7 +34,7 @@ const timeseriesSchema = new mongoose.Schema({
 });
 
 // Şemayı indeksleyin
-timeseriesSchema.index({ location: '2dsphere' });
+timeseriesSchema.index({ location: '2dsphere', deviceId: 1, timestamp: 1 });
 
 // Mongoose modelini oluşturun
 const TimeSeriesData = mongoose.model('TimeSeriesData', timeseriesSchema);

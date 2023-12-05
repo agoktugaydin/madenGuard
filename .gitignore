@@ -13,3 +13,5 @@ backend/node_modules/
 backend/.env
 
 # Diğer özel dosyalar veya dizinler
+
+data/venv

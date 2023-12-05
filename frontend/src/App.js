@@ -3,9 +3,10 @@ import axios from 'axios';
 import './App.css'; // CSS dosyasını import et
 
 const App = () => {
-  const [deviceIds, setDeviceIds] = useState([]);
-  const [selectedDeviceId, setSelectedDeviceId] = useState('');
-  const [data, setData] = useState([]);
+  // State'leri tanımla ve başlangıç değerlerini ayarla
+  const [deviceIds, setDeviceIds] = useState([]); // Tüm cihaz ID'lerini tutacak olan state
+  const [selectedDeviceId, setSelectedDeviceId] = useState(''); // Seçilen cihaz ID'sini tutacak olan state
+  const [data, setData] = useState([]); // Seçilen cihaz ID'sine ait verileri tutacak olan state
 
   // Cihaz ID'lerini çeken fonksiyon
   const fetchDeviceIds = async () => {
@@ -23,7 +24,7 @@ const App = () => {
   // Belirli cihaz ID'sine ait verileri çeken fonksiyon
   const fetchData = async () => {
     try {
-      // HTTP GET isteği ile belirli cihaz ID'sine ait verileri çek (son 30 saniye)
+      // HTTP GET isteği ile belirli cihaz ID'sine ait verileri çek (son 120 saniye)
       const response = await axios.get(`http://localhost:3001/api/data?deviceId=${selectedDeviceId}&timeRange=120`);
 
       // Gelen veriyi state'e ekleyerek güncelleme
@@ -53,7 +54,8 @@ const App = () => {
 
   return (
     <div className="app-container">
-      <h1>Real-time Data Visualization with React</h1>
+      {/* Başlık */}
+      <h1>MadenGuard</h1>
 
       {/* Cihaz ID'lerini gösteren bir dropdown */}
       <label htmlFor="deviceSelect">Select Device ID:</label>
@@ -82,6 +84,7 @@ const App = () => {
           </tr>
         </thead>
         <tbody>
+          {/* Veri varsa ve dizi ise, verileri tabloya ekle */}
           {data && Array.isArray(data) && data.map((entry) => (
             <tr key={entry._id}>
               <td>{entry.deviceId}</td>
