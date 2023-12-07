@@ -37,7 +37,7 @@ async def send_data():
         except Exception as e:
             print(f"Error: {e}")
 
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(0.2)
 
 
 if __name__ == "__main__":
