@@ -13,9 +13,12 @@ async def send_data():
     uri = "ws://localhost:3001"
     await sio.connect(uri)
 
+    device_id = 1  # Initialize user_id to 1
+
     while True:
-        device_id = random.randint(1, 10)
-        user_id = random.randint(1, 10)
+        # Increase user_id from 1 to 10 and reset it when it reaches 10
+        device_id = device_id % 10 + 1
+        user_id = random.randint(1, 10) 
         latitude = random.uniform(*TURKIYE_LATITUDE_RANGE)
         longitude = random.uniform(*TURKIYE_LONGITUDE_RANGE)
         gas_intensity = random.randint(1, 100)
@@ -34,7 +37,7 @@ async def send_data():
         except Exception as e:
             print(f"Error: {e}")
 
-        await asyncio.sleep(2)
+        await asyncio.sleep(0.5)
 
 
 if __name__ == "__main__":
