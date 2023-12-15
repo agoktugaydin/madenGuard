@@ -4,7 +4,7 @@ import socketio
 
 sio = socketio.AsyncClient()
 
-# Define TURKIYE boundaries
+# Define Turkiye's boundaries
 TURKIYE_LATITUDE_RANGE = (36, 42)
 TURKIYE_LONGITUDE_RANGE = (26, 45)
 
@@ -37,7 +37,7 @@ async def send_data():
         except Exception as e:
             print(f"Error: {e}")
 
-        await asyncio.sleep(0.2)
+        await asyncio.sleep(0.3)
 
 
 if __name__ == "__main__":
