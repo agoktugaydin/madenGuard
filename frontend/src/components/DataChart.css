@@ -1,0 +1,6 @@
+/* styles.css */
+.screenshot-button-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px; /* Optional: Adjust the margin as needed */
+}
