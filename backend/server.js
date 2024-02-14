@@ -1,15 +1,20 @@
 const express = require('express');
 const http = require('http');
-const { Server } = require('socket.io');
+const WebSocket = require('ws');
 const cors = require('cors');
 const dataRoutes = require('./routes/dataRoutes');
 const deviceRoutes = require('./routes/deviceRoutes');
+const userRoutes = require('./routes/userRoutes');
 const { connectToMongoDB } = require('./config/dbConfig');
 const { saveToTimeSeriesDatabase } = require('./controllers/dataController');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+// const wss = new WebSocket.Server({ server });
+const wss = new WebSocket.Server({
+    host: process.env.HOST,
+    port: process.env.PORTWS
+});
 
 // MongoDB connection
 connectToMongoDB();
@@ -18,22 +23,17 @@ connectToMongoDB();
 app.use(cors());
 app.use(express.json());
 
-// WebSocket connection
-io.on('connection', (socket) => {
+wss.on('connection', (ws) => {
     console.log('WebSocket Client Connected');
-
-    // Pass the io object to the saveToTimeSeriesDatabase function
-    socket.on('message', (data) => {
-        console.log(`Received message from WebSocket client: ${JSON.stringify(data)}`);
-
-        // Call the saveToTimeSeriesDatabase function and pass the io object
-        saveToTimeSeriesDatabase(data, io);
+    ws.on('message', (data) => {
+        saveToTimeSeriesDatabase(JSON.parse(data), wss);
     });
 });
 
 // Routes
 app.use('/api', dataRoutes);
 app.use('/api', deviceRoutes);
+app.use('/api', userRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 3001;
