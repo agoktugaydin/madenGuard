@@ -1,0 +1,46 @@
+/* styles.css */
+
+body {
+  font-family: 'Arial', sans-serif;
+}
+
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.dashboard-content {
+  display: flex;
+}
+
+.device-list {
+  flex: 1;
+  padding: 10px;
+}
+
+.device-list ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.device-list li {
+  margin-bottom: 10px;
+}
+
+.device-charts {
+  flex: 2;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.device-chart {
+  padding: 10px;
+  margin: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.device-chart h2 {
+  margin-bottom: 10px;
+}
