@@ -15,3 +15,5 @@ backend/.env
 # Diğer özel dosyalar veya dizinler
 
 data/venv
+
+notes.txt
