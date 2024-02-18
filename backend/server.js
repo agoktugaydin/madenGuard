@@ -24,9 +24,15 @@ app.use(cors());
 app.use(express.json());
 
 wss.on('connection', (ws) => {
+    ws.send('Welcome to the WebSocket server!')
     console.log('WebSocket Client Connected');
     ws.on('message', (data) => {
-        saveToTimeSeriesDatabase(JSON.parse(data), wss);
+        try {
+            saveToTimeSeriesDatabase(JSON.parse(data), wss);
+        } catch (error) {
+            console.error('Error processing message:', error);
+            // to do
+        }
     });
 });
 
