@@ -1,5 +1,5 @@
 const express = require('express');
-const http = require('http');
+const https = require('https');
 const WebSocket = require('ws');
 const cors = require('cors');
 const dataRoutes = require('./routes/dataRoutes');
@@ -7,13 +7,18 @@ const deviceRoutes = require('./routes/deviceRoutes');
 const userRoutes = require('./routes/userRoutes');
 const { connectToMongoDB } = require('./config/dbConfig');
 const { saveToTimeSeriesDatabase } = require('./controllers/dataController');
+const fs = require('fs');
 
 const app = express();
-const server = http.createServer(app);
+
+const server = https.createServer({
+    key: fs.readFileSync('./ssl/key.pem'),
+    cert: fs.readFileSync('./ssl/cert.pem')
+},
+    app);
 // const wss = new WebSocket.Server({ server });
 const wss = new WebSocket.Server({
-    host: process.env.HOST,
-    port: process.env.PORTWS
+    server,
 });
 
 // MongoDB connection
