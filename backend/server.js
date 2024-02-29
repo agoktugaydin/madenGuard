@@ -13,7 +13,7 @@ const server = http.createServer(app);
 // const wss = new WebSocket.Server({ server });
 const wss = new WebSocket.Server({
     host: process.env.HOST,
-    port: process.env.PORTWS
+    port: process.env.PORT
 });
 
 // MongoDB connection
@@ -42,7 +42,7 @@ app.use('/api', deviceRoutes);
 app.use('/api', userRoutes);
 
 // Start the server
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORTHTTP || 3001;
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
