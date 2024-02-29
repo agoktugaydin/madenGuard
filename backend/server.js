@@ -13,7 +13,9 @@ const app = express();
 
 const server = https.createServer({
     key: fs.readFileSync('./ssl/key.pem'),
-    cert: fs.readFileSync('./ssl/cert.pem')
+    cert: fs.readFileSync('./ssl/cert.pem'),
+    // host: process.env.HOST,
+    // port: process.env.PORT,
 },
     app);
 // const wss = new WebSocket.Server({ server });
@@ -25,7 +27,7 @@ const wss = new WebSocket.Server({
 connectToMongoDB();
 
 // Middleware
-app.use(cors());
+// app.use(cors());
 app.use(express.json());
 
 wss.on('connection', (ws) => {
@@ -47,7 +49,7 @@ app.use('/api', deviceRoutes);
 app.use('/api', userRoutes);
 
 // Start the server
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORTHTTP || 3001;
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
