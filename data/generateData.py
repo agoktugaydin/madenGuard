@@ -4,31 +4,32 @@ import socketio
 
 sio = socketio.AsyncClient()
 
-# Define Turkiye's boundaries
-TURKIYE_LATITUDE_RANGE = (36, 42)
-TURKIYE_LONGITUDE_RANGE = (26, 45)
-
 
 async def send_data():
-    uri = "ws://localhost:3001"
+    uri = "ws://10.3.12.209:5600"  # Change the WebSocket server address and port
     await sio.connect(uri)
 
-    device_id = 1  # Initialize user_id to 1
+    device_id_list = [
+        "3bf76280-6ca9-4d83-9ffb-db112de00c24",
+        "51b8b9eb-6dae-4f75-99f0-84740a2fe42a",
+        "5872dede-9499-487f-a8db-f199d6522160",
+        "796bcaa5-986f-4e16-b123-ea77aaf0485f",
+        "a3cb5588-dbe4-4358-a175-9c3249f9efac",
+        "ae4b6b80-06b2-4238-bc32-c4415b4aa686",
+        "e19670df-e141-41cd-b64c-889c76806847",
+    ]
 
     while True:
-        # Increase user_id from 1 to 10 and reset it when it reaches 10
-        device_id = device_id % 10 + 1
-        user_id = random.randint(1, 10) 
-        latitude = random.uniform(*TURKIYE_LATITUDE_RANGE)
-        longitude = random.uniform(*TURKIYE_LONGITUDE_RANGE)
-        gas_intensity = random.randint(1, 100)
+        gas_intensity = random.randint(0, 10)
+        zone = str(random.randint(1, 81)) + "C" + str(random.randint(1, 81))
+
+        if random.random() < 0.1:
+            gas_intensity = random.randint(60, 70)
 
         data = {
-            "deviceId": device_id,
-            "userId": user_id,
+            "deviceId": random.choice(device_id_list),
             "gasIntensity": gas_intensity,
-            "latitude": latitude,
-            "longitude": longitude,
+            "zone": zone,
         }
 
         try:
@@ -37,7 +38,7 @@ async def send_data():
         except Exception as e:
             print(f"Error: {e}")
 
-        await asyncio.sleep(0.3)
+        await asyncio.sleep(0.8)
 
 
 if __name__ == "__main__":
