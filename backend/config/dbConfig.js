@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 
 function connectToMongoDB() {
-    // mongoose.connect('mongodb://localhost:27017/madenGuardDB');
     mongoose.connect(process.env.MONGO_URI); 
     const db = mongoose.connection;
 
