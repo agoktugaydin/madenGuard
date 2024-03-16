@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Typography, Grid, TextField, Button, Snackbar, Paper } from '@mui/material';
 import MuiAlert from '@mui/material/Alert';
 import axios from 'axios';
-import { useNavigate, useLocation  } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const Login = ({ isLoggedIn, setLoggedIn }) => {
   const [formData, setFormData] = useState({
@@ -36,7 +36,7 @@ const Login = ({ isLoggedIn, setLoggedIn }) => {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post('http://localhost:3001/api/user/login', formData);
+      const response = await axios.post('https://localhost:3001/api/user/login', formData);
       const token = response.data.token;
       const role = response.data.role;
 
