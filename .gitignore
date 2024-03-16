@@ -17,3 +17,10 @@ backend/.env
 data/venv
 
 notes.txt
+
+backend/ssl
+backend/ssl2
+frontend/ssl
+frontend/ssl2
+
+ss
