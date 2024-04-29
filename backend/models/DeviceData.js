@@ -11,7 +11,8 @@ const deviceSchema = new mongoose.Schema({
     title: String,
     type: String,
     zone: String,
-    status: String
+    status: String,
+    isConnected: Boolean
 });
 
 // Check if the model already exists to avoid redefining it
