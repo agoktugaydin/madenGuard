@@ -5,6 +5,7 @@ const CONSTANTS = require('../utils/constants')
 const {extractUserId} = require('../utils/jwtUtils');
 const {extractUserRole} = require('../controllers/userDataController');
 const WebSocket = require('ws');
+const { connected } = require('process');
 
 async function fetchRecentDataFromDatabase(deviceId, timeRangeInSeconds) {
     const currentTime = new Date();
@@ -153,7 +154,8 @@ async function saveDevice(data, token) {
                 title: data.title,
                 type: "master",
                 zone: data.zone,
-                status: data.status
+                status: data.status,
+                isConnected: data.isConnected
             });
     
             if(data.masterId) {
@@ -178,7 +180,8 @@ async function saveDevice(data, token) {
                 title: data.title,
                 type: "master",
                 zone: data.zone,
-                status: data.status
+                status: data.status,
+                isConnected: data.isConnected
             });
     
             if(data.masterId) {
@@ -203,6 +206,17 @@ async function saveDevice(data, token) {
     }
 }
 
+async function updateDeviceStatus(deviceId, newStatus) {
+    try {
+        const result = await DeviceData.findOneAndUpdate({ deviceId: deviceId }, { $set: { status: newStatus } }, { new: true });
+        console.log('Device status updated:', result);
+
+        return result;
+    } catch (error) {
+        console.error('Error updating device status:', error);
+        throw error;
+    }
+}
 
 async function updateDevice(device, deviceId, token) {
     try {
@@ -223,7 +237,8 @@ async function updateDevice(device, deviceId, token) {
                 title: device.title,
                 type: "master",
                 zone: device.zone,
-                status: device.status
+                status: device.status,
+                isConnected: data.isConnected
             };
 
             // check if master id provided and if given, check if the master exists in db
@@ -258,7 +273,8 @@ async function updateDevice(device, deviceId, token) {
                 title: device.title,
                 type: "master",
                 zone: device.zone,
-                status: device.status
+                status: device.status,
+                isConnected: data.isConnected
             };
 
             // check if master id provided and if given, check if the master exists in db
@@ -358,5 +374,6 @@ module.exports = {
     getDeviceById,
     getAllDevices,
     deleteDeviceById,
-    deleteAllDevices
+    deleteAllDevices,
+    updateDeviceStatus
 };
