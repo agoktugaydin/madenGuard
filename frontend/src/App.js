@@ -7,6 +7,7 @@ import ListDevicesPage from '../src/pages/ListDevicesPage';
 import ListCustomersPage from '../src/pages/ListCustomersPage';
 import RegisterCustomerPage from '../src/pages/RegisterCustomerPage';
 import AllDevicesPage from './pages/DashBoardPage';
+import MapPage from './pages/MapPage'
 
 import './App.css';
 
@@ -91,11 +92,12 @@ const App = () => {
           <Tabs style={tabStyle}>
             <Tab style={tabItemStyle} label="Home" component={Link} to="/" />
             <Tab style={tabItemStyle} label="Device Log" component={Link} to="/device-log" />
+            <Tab style={tabItemStyle} label="Map" component={Link} to="/map" />
             <Tab style={tabItemStyle} label="Dashboard" component={Link} to="/all-devices" />
             <Tab style={tabItemStyle} label="Device List" component={Link} to="/device-list" />
             <Tab style={tabItemStyle} label="Device Register" component={Link} to="/device-register" />
             {isAdmin && <Tab style={tabItemStyle} label="Customer List" component={Link} to="/customer-list" />}
-            {isAdmin && <Tab style={tabItemStyle} label="Customer Register" component={Link} to="/customer-register" />}          
+            {isAdmin && <Tab style={tabItemStyle} label="Customer Register" component={Link} to="/customer-register" />}
           </Tabs>
           {isLoggedIn && (
             <Button style={logoutButtonStyle} color="inherit" onClick={handleLogout}>
@@ -115,6 +117,7 @@ const App = () => {
         <Route path="/device-details/:deviceId" exact element={<DeviceDetailsPage isLoggedIn={isLoggedIn} />} />
 
         <Route path="/all-devices" exact element={<AllDevicesPage isLoggedIn={isLoggedIn} />} />
+        <Route path="/map" exact element={<MapPage isLoggedIn={isLoggedIn} />} />
 
         <Route path="/customer-list" exact element={<ListCustomersPage isLoggedIn={isLoggedIn} />} />
         <Route path="/customer-register" exact element={<RegisterCustomerPage isLoggedIn={isLoggedIn} />} />
