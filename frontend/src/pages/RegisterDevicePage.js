@@ -13,6 +13,7 @@ import axios from 'axios';
 import FormInput from '../../src/components/FormInput';
 import SubmitButton from '../../src/components/SubmitButton';
 import { useNavigate } from 'react-router-dom';
+const { apiUrl, apiPort } = require('../constants.js');
 
 const RegisterDevice = ({ isLoggedIn }) => {
   const [formData, setFormData] = useState({
@@ -62,7 +63,7 @@ const RegisterDevice = ({ isLoggedIn }) => {
         Authorization: `${token}`,
       };
 
-      const response = await axios.get('http://localhost:3001/api/device', { headers });
+      const response = await axios.get(`${apiUrl}:${apiPort}/api/device`, { headers });
 
       // Extract master devices with type "master"
       const masterDevices = response.data.filter((device) => device.type === 'master');
@@ -71,7 +72,7 @@ const RegisterDevice = ({ isLoggedIn }) => {
       // Extract titles and masterIds of master devices
       const masterTitles = [
         // Add "None" option
-        { title: 'None', masterId: 'None' },
+        { title: 'This Device Is Master', masterId: 'None' },
         // Add titles and masterIds of master devices
         ...masterDevices.map((device) => ({
           title: device.title,
@@ -110,7 +111,7 @@ const RegisterDevice = ({ isLoggedIn }) => {
         masterId: formData.masterId == 'None' ? '' : formData.masterId,
       };
 
-      const response = await axios.post('http://localhost:3001/api/device', registrationData, {
+      const response = await axios.post(`${apiUrl}:${apiPort}/api/device`, registrationData, {
         headers,
       });
       console.log('Device registered:', response.data);
