@@ -141,12 +141,40 @@ async function getDeviceById(deviceId, token) {
     }
 }
 
-async function saveDevice(data, token) {
+async function saveDevice(data, token, isAdmin) {
     try {
-        const userRole = await extractUserRole(token);
-        if(userRole == CONSTANTS.ADMIN) {
-            if(!data.ownerId){
-                throw new Error("Owner id must be provided"); 
+        if (isAdmin) {
+            // If the user is an admin, show a user select input instead of ownerId
+            if (!data.userId) {
+                throw new Error("User must be selected");
+            }
+            const newData = new DeviceData({
+                deviceId: randomUUID(),
+                ownerId: data.userId,
+                title: data.title,
+                type: "master",
+                zone: data.zone,
+                status: data.status,
+                isConnected: data.isConnected
+            });
+
+            if (data.masterId) {
+                const master = await DeviceData.findOne({ deviceId: data.masterId, ownerId: data.userId });
+                if (!master) {
+                    throw new Error("The master device or the ownership does not exist");
+                }
+                newData.masterId = data.masterId;
+                newData.type = "slave";
+            }
+
+            const savedData = await newData.save();
+            console.log('Device data saved to MongoDB Time Series Database:', savedData);
+            return savedData;
+
+        } else {
+            // If the user is not an admin, require ownerId
+            if (!data.ownerId) {
+                throw new Error("Owner id must be provided");
             }
             const newData = new DeviceData({
                 deviceId: randomUUID(),
@@ -157,47 +185,19 @@ async function saveDevice(data, token) {
                 status: data.status,
                 isConnected: data.isConnected
             });
-    
-            if(data.masterId) {
+
+            if (data.masterId) {
                 const master = await DeviceData.findOne({ deviceId: data.masterId, ownerId: data.ownerId });
                 if (!master) {
-                    throw new Error("The master device or the ownership does not exist"); 
-                } 
+                    throw new Error("The master device or the ownership does not exist");
+                }
                 newData.masterId = data.masterId;
                 newData.type = "slave";
             }
-    
+
             const savedData = await newData.save();
             console.log('Device data saved to MongoDB Time Series Database:', savedData);
             return savedData;
-
-        } else if(userRole == CONSTANTS.CUSTOMER){
-            const userId = extractUserId(token);
-
-            const newData = new DeviceData({
-                deviceId: randomUUID(),
-                ownerId: userId,
-                title: data.title,
-                type: "master",
-                zone: data.zone,
-                status: data.status,
-                isConnected: data.isConnected
-            });
-    
-            if(data.masterId) {
-                const master = await DeviceData.findOne({ deviceId: data.masterId, ownerId: userId });
-                if (!master) {
-                    throw new Error("The master device or the ownership does not exist"); 
-                } 
-                newData.masterId = data.masterId;
-                newData.type = "slave";
-            }
-    
-            const savedData = await newData.save();
-            console.log('Device data saved to MongoDB Time Series Database:', savedData);
-            return savedData;
-        } else {
-            throw new Error('Requestor is not allowed to access this resource')
         }
 
     } catch (error) {
@@ -205,6 +205,7 @@ async function saveDevice(data, token) {
         throw error;
     }
 }
+
 
 async function updateDeviceStatus(deviceId, newStatus) {
     try {
@@ -214,6 +215,19 @@ async function updateDeviceStatus(deviceId, newStatus) {
         return result;
     } catch (error) {
         console.error('Error updating device status:', error);
+        throw error;
+    }
+}
+
+// update device isconnected status
+async function updateIsDeviceConnected(deviceId, isConnected) {
+    try {
+        const result = await
+            DeviceData.findOneAndUpdate({ deviceId: deviceId }, { $set: { isConnected: isConnected } }, { new: true });
+        console.log('Device isConnected status updated:', result);
+        return result;
+    } catch (error) {
+        console.error('Error updating device isConnected status:', error);
         throw error;
     }
 }
@@ -375,5 +389,6 @@ module.exports = {
     getAllDevices,
     deleteDeviceById,
     deleteAllDevices,
-    updateDeviceStatus
+    updateDeviceStatus,
+    updateIsDeviceConnected
 };
