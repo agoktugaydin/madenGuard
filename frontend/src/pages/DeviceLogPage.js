@@ -4,6 +4,7 @@ import DeviceSelect from '../components/DeviceSelect';
 import { useNavigate } from 'react-router-dom';
 import DataChart from '../components/DataChart';
 import '../styles.css';
+import { apiUrl, apiPort } from '../constants';
 
 const DeviceLogPage = ({ isLoggedIn }) => {
     const [deviceIds, setDeviceIds] = useState([]);
@@ -23,7 +24,7 @@ const DeviceLogPage = ({ isLoggedIn }) => {
 
     const fetchDeviceIds = async () => {
         try {
-            const response = await axios.get('http://localhost:3001/api/deviceIds');
+            const response = await axios.get(`${apiUrl}:${apiPort}/api/deviceIds`);
             setDeviceIds(response.data);
         } catch (error) {
             console.error('Error fetching device IDs:', error);
@@ -32,7 +33,7 @@ const DeviceLogPage = ({ isLoggedIn }) => {
 
     const fetchData = async (pageNumber) => {
         try {
-            const response = await axios.get(`http://localhost:3001/api/data?deviceId=${selectedDeviceId}&timeRange=120`);
+            const response = await axios.get(`${apiUrl}:${apiPort}/api/data?deviceId=${selectedDeviceId}&timeRange=120`);
             const totalItems = response.data.length;
             setTotalPages(Math.ceil(totalItems / itemsPerPage));
 

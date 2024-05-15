@@ -21,6 +21,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import DataChart from '../components/DataChart';
 import Slider from '@mui/material/Slider';
 import DataTable from '../components/DataTable';
+import { apiUrl, apiPort } from '../constants';
 
 const DeviceDetailsPage = ({ isLoggedIn }) => {
   const { deviceId } = useParams();
@@ -49,7 +50,7 @@ const DeviceDetailsPage = ({ isLoggedIn }) => {
       const headers = {
         Authorization: `${token}`,
       };
-      const response = await axios.get(`http://localhost:3001/api/device/${deviceId}`, { headers });
+      const response = await axios.get(`${apiUrl}:${apiPort}/api/device/${deviceId}`, { headers });
       setDevice(response.data);
     } catch (error) {
       console.error('Error fetching device:', error);
@@ -60,7 +61,7 @@ const DeviceDetailsPage = ({ isLoggedIn }) => {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get(`http://localhost:3001/api/allData?deviceId=${deviceId}`);
+      const response = await axios.get(`${apiUrl}:${apiPort}/api/allData?deviceId=${deviceId}`);
       setData(response.data.reverse());
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -81,7 +82,7 @@ const DeviceDetailsPage = ({ isLoggedIn }) => {
       const confirmDelete = window.confirm('Are you sure to delete this device?');
 
       if (confirmDelete) {
-        await axios.delete(`http://localhost:3001/api/device/${deviceId}`);
+        await axios.delete(`${apiUrl}:${apiPort}/api/device/${deviceId}`);
         setSnackbarMessage('Device deleted successfully!');
         setSnackbarOpen(true);
         navigate('/device-list');

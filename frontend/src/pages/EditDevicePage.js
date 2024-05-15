@@ -5,7 +5,8 @@ import axios from 'axios';
 import FormInput from '../components/FormInput';
 import SubmitButton from '../components/SubmitButton';
 import { useParams, useNavigate } from 'react-router-dom';
-
+import { apiUrl, apiPort } from '../constants';
+  
 const EditDevicePage = ({ isLoggedIn }) => {
   const { deviceId } = useParams(); // Get the deviceId from the route params
   const navigate = useNavigate();
@@ -41,7 +42,7 @@ const EditDevicePage = ({ isLoggedIn }) => {
           Authorization: `${token}`,
         };
 
-        const response = await axios.get(`http://localhost:3001/api/device/${deviceId}`, { headers });
+        const response = await axios.get(`${apiUrl}:${apiPort}/api/device/${deviceId}`, { headers });
         // Populate the form with existing device details
         const newFormData = response.data;
         if(!newFormData.masterId){ // make the selected option None
@@ -65,7 +66,7 @@ const EditDevicePage = ({ isLoggedIn }) => {
           Authorization: `${token}`,
         };
 
-        const response = await axios.get('http://localhost:3001/api/device', { headers });
+        const response = await axios.get(`${apiUrl}:${apiPort}/api/device`, { headers });
 
         // Extract master devices with type "master" excluding the device being edited
         const masterDevices = response.data.filter(
@@ -125,7 +126,7 @@ const EditDevicePage = ({ isLoggedIn }) => {
       };
 
       // Send PUT request to update the existing device
-      const response = await axios.put(`http://localhost:3001/api/device/${deviceId}`, updatedFormData, {headers});
+      const response = await axios.put(`${apiUrl}:${apiPort}/api/device/${deviceId}`, updatedFormData, {headers});
       console.log('Device updated:', response.data);
 
       // Show success message
