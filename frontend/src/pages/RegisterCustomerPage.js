@@ -13,6 +13,7 @@ import axios from 'axios';
 import FormInput from '../../src/components/FormInput';
 import SubmitButton from '../../src/components/SubmitButton';
 import { useNavigate } from 'react-router-dom';
+import { apiUrl, apiPort } from '../constants';
 
 const RegisterCustomer = ({ isLoggedIn }) => {
     const [formData, setFormData] = useState({
@@ -61,7 +62,7 @@ const RegisterCustomer = ({ isLoggedIn }) => {
                 ...formData,
             };
 
-            const response = await axios.post('http://localhost:3001/api/user', registrationData, {
+            const response = await axios.post(`${apiUrl}:${apiPort}/api/user`, registrationData, {
                 headers,
             });
             console.log('Customer registered:', response.data);
