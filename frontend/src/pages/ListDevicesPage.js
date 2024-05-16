@@ -3,9 +3,14 @@ import { Container, Typography, Table, TableBody, TableCell, TableContainer, Tab
 import DeleteIcon from '@mui/icons-material/Delete';
 import InfoIcon from '@mui/icons-material/Info';
 import EditIcon from '@mui/icons-material/Edit';
+import ActivateIcon from '@mui/icons-material/PlayArrow';
+import DeactivateIcon from '@mui/icons-material/Stop';
 import axios from 'axios';
 import MuiAlert from '@mui/material/Alert';
 import { useNavigate } from 'react-router-dom';
+import { apiUrl, apiPort } from '../constants';
+
+// const label = { inputProps: { 'aria-label': 'Switch demo' } };
 
 const ListDevicesPage = ({ isLoggedIn }) => {
   const [devices, setDevices] = useState([]);
@@ -31,7 +36,7 @@ const ListDevicesPage = ({ isLoggedIn }) => {
         Authorization: `${token}`,
       };
 
-      const response = await axios.get('http://localhost:3001/api/device', { headers });
+      const response = await axios.get(`${apiUrl}:${apiPort}/api/device`, { headers });
       setDevices(response.data);
     } catch (error) {
       console.error('Error fetching devices:', error);
@@ -75,7 +80,7 @@ const ListDevicesPage = ({ isLoggedIn }) => {
 
       if (confirmDelete) {
         // Send DELETE request to backend
-        await axios.delete(`http://localhost:3001/api/device/${deviceId}`, { headers });
+        await axios.delete(`${apiUrl}:${apiPort}/api/device/${deviceId}`, { headers });
         setSnackbarMessage('Device deleted successfully!');
         setSnackbarOpen(true);
         // Refetch devices after deletion
@@ -86,6 +91,65 @@ const ListDevicesPage = ({ isLoggedIn }) => {
       // Handle errors or show a user-friendly message
     }
   };
+
+  // cihazi aktive et
+  const handleActivate = async (deviceId) => {
+    try {
+      // Retrieve the token from localStorage or state
+      const token = localStorage.getItem('token');
+
+      // Set the headers with the token
+      const headers = {
+        Authorization: `${token}`,
+      };
+
+      // Prompt user for confirmation
+      const confirmActivate = window.confirm('Are you sure to activate this device?');
+
+      if (confirmActivate) {
+        // Send POST request to backend
+
+        await axios.post(`${apiUrl}:${apiPort}/api/activate-device/${deviceId}`, { headers });
+        setSnackbarMessage('Device activated successfully!');
+        setSnackbarOpen(true);
+        // Refetch devices after activation
+        fetchDevices();
+      }
+    } catch (error) {
+  
+      console.error('Error activating device:', error);
+      // Handle errors or show a user-friendly message
+    }
+  };
+
+  // cihazi deaktive et
+  const handleDeactivate = async (deviceId) => {
+    try {
+      // Retrieve the token from localStorage or state
+      const token = localStorage.getItem('token');
+
+      // Set the headers with the token
+      const headers = {
+        Authorization: `${token}`,
+      };
+
+      // Prompt user for confirmation
+      const confirmDeactivate = window.confirm('Are you sure to deactivate this device?');
+
+      if (confirmDeactivate) {
+        // Send POST request to backend
+        await axios.post(`${apiUrl}:${apiPort}/api/deactivate-device/${deviceId}`, { headers });
+        setSnackbarMessage('Device deactivated successfully!');
+        setSnackbarOpen(true);
+        // Refetch devices after deactivation
+        fetchDevices();
+      }
+    } catch (error) {
+      console.error('Error deactivating device:', error);
+      // Handle errors or show a user-friendly message
+    }
+  };
+
 
   // Check if at least one device has an "ownerId"
   const hasOwnerIds = devices.some(device => device.ownerId);
@@ -128,6 +192,13 @@ const ListDevicesPage = ({ isLoggedIn }) => {
                   </IconButton>
                   <IconButton color="secondary" onClick={() => handleDelete(device.deviceId)}>
                     <DeleteIcon />
+                  </IconButton>
+                  <IconButton color="primary" onClick={() => handleActivate(device.deviceId)}>
+                    <ActivateIcon />
+                  </IconButton>
+
+                  <IconButton color="primary" onClick={() => handleDeactivate(device.deviceId)}>
+                    <DeactivateIcon />
                   </IconButton>
                 </TableCell>
               </TableRow>
