@@ -5,6 +5,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import InfoIcon from '@mui/icons-material/Info';
 import EditIcon from '@mui/icons-material/Edit';
 import { useNavigate } from 'react-router-dom';
+import { apiUrl, apiPort } from '../constants';
 
 const ListCustomersPage = () => {
   const [customers, setCustomers] = useState([]);
@@ -23,7 +24,7 @@ const ListCustomersPage = () => {
         Authorization: `${token}`,
       };
 
-      const response = await axios.get('http://localhost:3001/api/user', {headers});
+      const response = await axios.get(`${apiUrl}:${apiPort}/api/user`, {headers});
       const filteredCustomers = response.data.filter(user => user.role === 'ROLE_CUSTOMER');
       setCustomers(filteredCustomers);
     } catch (error) {
@@ -40,6 +41,8 @@ const ListCustomersPage = () => {
   const handleDetails = (userId) => {
     // Handle details action
     console.log(`Details clicked for user with ID: ${userId}`);
+    // Redirect to customer details page
+    navigate(`/customer-details/${userId}`);
     // You can add your navigation logic here
   };
 
@@ -47,6 +50,7 @@ const ListCustomersPage = () => {
     // Handle edit action
     console.log(`Edit clicked for user with ID: ${userId}`);
     // You can add your navigation logic here
+    navigate(`/customer-edit/${userId}`);
   };
 
   const handleDelete = async (userId) => {
@@ -64,7 +68,7 @@ const ListCustomersPage = () => {
 
       if (confirmDelete) {
         // Send DELETE request to backend
-        await axios.delete(`http://localhost:3001/api/user/${userId}`, { headers });
+        await axios.delete(`${apiUrl}:${apiPort}/api/user/${userId}`, { headers });
         setSnackbarMessage('Customer deleted successfully!');
         setSnackbarOpen(true);
         // Refetch customers after deletion
@@ -99,10 +103,10 @@ const ListCustomersPage = () => {
                 <TableCell>{customer.surname}</TableCell>
                 <TableCell>{customer.email}</TableCell>
                 <TableCell>
-                  <IconButton disabled color="primary" onClick={() => handleDetails(customer.userId)}>
+                  <IconButton color="primary" onClick={() => handleDetails(customer.userId)}>
                     <InfoIcon />
                   </IconButton>
-                  <IconButton disabled color="primary" onClick={() => handleEdit(customer.userId)}>
+                  <IconButton color="primary" onClick={() => handleEdit(customer.userId)}>
                     <EditIcon />
                   </IconButton>
                   <IconButton color="secondary" onClick={() => handleDelete(customer.userId)}>
