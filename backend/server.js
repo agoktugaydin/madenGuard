@@ -6,7 +6,7 @@ const dataRoutes = require('./routes/dataRoutes');
 const deviceRoutes = require('./routes/deviceRoutes');
 const userRoutes = require('./routes/userRoutes');
 const { connectToMongoDB } = require('./config/dbConfig');
-const { saveToTimeSeriesDatabase } = require('./controllers/dataController');
+const { saveToTimeSeriesDatabase, updateDeviceStatus, updateIsDeviceConnected } = require('./controllers/dataController');
 
 const app = express();
 const server = http.createServer(app);
@@ -15,6 +15,8 @@ const wss = new WebSocket.Server({
     host: process.env.HOST,
     port: process.env.PORT
 });
+
+const connectedDevices = new Map(); 
 
 // MongoDB connection
 connectToMongoDB();
@@ -25,16 +27,101 @@ app.use(express.json());
 
 wss.on('connection', (ws) => {
     ws.send('Welcome to the WebSocket server!')
-    console.log('WebSocket Client Connected');
-    ws.on('message', (data) => {
+    console.log('New WebSocket connection');
+    ws.on('message', async (data) => {
         try {
-            saveToTimeSeriesDatabase(JSON.parse(data), wss);
+            const message = JSON.parse(data);
+            switch (message.type) {
+                case 'login':
+                    const { deviceId } = message;
+                    if (connectedDevices.has(deviceId)) {
+                        ws.send(JSON.stringify({ type: 'login_error', message: 'Device is already connected' }));
+                        break;
+                    } else {
+                        await updateIsDeviceConnected(deviceId, true);
+                        await updateDeviceStatus(deviceId, 'deactive');
+                    }
+                    connectedDevices.set(deviceId, ws);
+                    ws.send(JSON.stringify({ type: 'login_success' }));
+                    break;
+                case 'sensor_data':
+                    saveToTimeSeriesDatabase(message, wss);
+                    break;
+                default:
+                    break;
+            }
         } catch (error) {
             console.error('Error processing message:', error);
-            // to do
+        }
+    });
+
+
+    ws.on('close', () => {
+        for (const [deviceId, socket] of connectedDevices.entries()) {
+            if (socket === ws) {
+                console.log(`Device ${deviceId} disconnected`);
+                removeDeviceFromConnectedDevices(deviceId);
+                updateIsDeviceConnected(deviceId, false); 
+                updateDeviceStatus(deviceId, 'deactive');
+                break;
+            }
         }
     });
 });
+
+app.get('/', (req, res) => {
+    const mesaj = "wait for it";
+    res.send(mesaj);
+});
+
+
+app.get('/api/connected-devices', (req, res) => {
+    const devices = getConnectedDevices();
+    res.json(devices);
+});
+
+app.get('/api/device-status/:deviceId', (req, res) => {
+    const { deviceId } = req.params;
+    const isConnected = isDeviceConnected(deviceId);
+    res.json({ deviceId, isConnected });
+});
+
+app.post('/api/activate-device/:deviceId', (req, res) => {
+    const { deviceId } = req.params;
+    activateDevice(deviceId);
+    const ws = connectedDevices.get(deviceId);
+    if (ws) {
+        ws.send(JSON.stringify({ type: 'command', command: 'activate' }));
+    }
+    res.json({ deviceId, status: 'active' });
+});
+
+app.post('/api/deactivate-device/:deviceId', (req, res) => {
+    const { deviceId } = req.params;
+    updateDeviceStatus(deviceId, 'deactive');
+    const ws = connectedDevices.get(deviceId);
+    if (ws) {
+        ws.send(JSON.stringify({ type: 'command', command: 'deactivate' }));
+    }
+    res.json({
+        deviceId, status: 'deactive'
+    });
+}
+);
+
+app.post('/api/send-command/:deviceId', (req, res) => {
+    const { deviceId } = req.params;
+    const { command } = req.body;
+    const ws = connectedDevices.get(deviceId);
+    if (ws) {
+        ws.send(JSON.stringify({ type: 'command', command }));
+        res.json({ message: 'Command sent' });
+    } else {
+        res.status(404).json({ message: 'Device not connected' });
+    }
+}
+);
+
 
 // Routes
 app.use('/api', dataRoutes);
@@ -42,7 +129,26 @@ app.use('/api', deviceRoutes);
 app.use('/api', userRoutes);
 
 // Start the server
-const PORT = process.env.PORTHTTP || 3001;
+const PORT = 3001 //process.env.PORTHTTPS || 3001;
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+
+// Helper functions to manage connected devices
+function getConnectedDevices() {
+    return Array.from(connectedDevices.keys());
+}
+
+function isDeviceConnected(deviceId) {
+    return connectedDevices.has(deviceId);
+}
+
+// cihazi bagli olan cihazlar listesinden cikar
+function removeDeviceFromConnectedDevices(deviceId) {
+    connectedDevices.delete(deviceId);
+}
+
+// cihazi aktif hale getir
+function activateDevice(deviceId) {
+    updateDeviceStatus(deviceId, 'active');
+}
