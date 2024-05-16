@@ -1,185 +1,96 @@
-.app-container {
-  max-width: 800px;
-  text-align: center;
-  margin: 0 auto;
-  font-family: 'Arial', sans-serif;
+body {
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  background-color: #f0f2f5;
 }
 
-h1 {
-  text-align: center;
-  color: #333;
+.navbar {
+  background-color: #2196f3;
+  padding: 10px 0;
 }
 
-label {
-  display: block;
-  margin-top: 15px;
-  font-weight: bold;
-}
-
-select {
-  width: 100%;
-  padding: 8px;
-  margin-top: 8px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
-
-th, td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
-}
-
-th {
-  background-color: #f2f2f2;
-}
-
-tr:hover {
-  background-color: #f5f5f5;
-}
-
-.map-page {
-  display: flex;
-  height: 100vh;
-}
-
-.map-container {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.grid {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(20, 25px);
-  grid-template-rows: repeat(30, 25px); /* Artırılan kare sayısı */
-  gap: 1px;
-  border: 2px solid #333;
-  padding: 5px;
-  border-radius: 10px;
-}
-
-.grid-cell {
-  position: relative;
-  width: 25px;
-  height: 25px;
-  border: 1px solid #333;
-  cursor: pointer;
-}
-
-.path {
-  background-color: #c2c2c2;
-}
-
-.selected {
-  background-color: transparent;
-}
-
-.balloon {
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  background-color: red;
-  border-radius: 50%;
-  top: -10px;
-  left: -10px;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.balloon::before {
-  content: "";
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  background-color: inherit;
-  border-radius: 50%;
-  top: 0;
-  left: 0;
-}
-
-.nickname {
-  font-size: 10px;
-  font-weight: bold;
-}
-
-.popup {
-  display: none;
-}
-
-.sidebar {
-  width: 200px;
-  padding: 10px;
-  border-left: 1px solid #ccc;
-  background-color: #f9f9f9;
-}
-
-.sidebar h2 {
-  text-align: center;
-}
-
-.selected-cells-list {
-  padding: 0;
-  list-style: none;
-  margin-top: 10px;
-}
-
-.selected-cells-list li {
+.navbar-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 5px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.coordinates {
-  font-size: 12px;
-  color: #666;
+.main-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 70vh; /* İstediğiniz boyutu ayarlayabilirsiniz */
 }
 
-/* Yolları ve maden ocağı detaylarını temsil eden öğeler için farklı stiller */
-.path {
-  background-color: #c2c2c2;
+.tabs {
+  display: flex;
+  flex-grow: 1;
+  overflow-x: auto;
 }
 
-.path.selected {
-  background-color: #ccc;
+.tab-item {
+  margin-right: 16px;
+  color: white;
+  text-decoration: none;
 }
 
-/* Önceki stiller burada */
-
-.vertical-road {
-  background-color: #aaa;
-  border-radius: 0 0 10px 10px;
+.tab-item.disabled {
+  text-decoration: line-through;
 }
 
-.horizontal-road {
-  background-color: #888;
-  border-radius: 10px 10px 0 0;
+.logout-button {
+  color: white; /* White text color for better contrast */
+  border: 2px solid #fff; /* White border */
+  background-color: #f44336; /* Red background for prominence */
+  padding: 10px 20px; /* More padding for a larger clickable area */
+  margin-left: 16px;
+  transition: background-color 0.3s, color 0.3s; /* Smooth transition for hover effect */
 }
 
-.mine-map {
-  border: 2px solid #333;
-  padding: 20px;
-  margin: 20px auto;
-  width: 80%;
+.logout-button:hover {
+  background-color: #d32f2f; /* Darker red on hover */
+  color: #fff; /* Ensure text remains white */
+  border-color: #fff; /* Keep border color white */
 }
 
-.vertical-corridor {
-  border: 1px solid #999;
-  padding: 10px;
-  margin: 10px 0;
+.button {
+  color: white; /* White text color for better contrast */
+  border: 2px solid #2196f3; /* Primary color border */
+  background-color: #2196f3; /* Primary color background */
+  padding: 10px 20px; /* More padding for a larger clickable area */
+  margin: 5px; /* Margin around the button */
+  text-transform: uppercase; /* Uppercase text for uniformity */
+  transition: background-color 0.3s, color 0.3s; /* Smooth transition for hover effect */
+  cursor: pointer; /* Pointer cursor to indicate clickability */
 }
 
-.horizontal-corridor {
-  margin-left: 20px;
-  border-left: 1px dashed #999;
-  padding-left: 10px;
+.button:hover {
+  background-color: #1976d2; /* Darker primary color on hover */
+  color: white; /* Ensure text remains white */
+  border-color: #1976d2; /* Adjust border color to match background on hover */
+}
+
+.button:disabled {
+  background-color: #bdbdbd; /* Grey background for disabled state */
+  color: #757575; /* Darker grey text for disabled state */
+  border-color: #bdbdbd; /* Match border color with background for disabled state */
+  cursor: not-allowed; /* Indicate non-clickable state */
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .tabs {
+    flex-direction: column;
+  }
+  
+  .tab-item {
+    margin-bottom: 10px;
+  }
+
+  .logout-button {
+    margin-left: 0;
+    margin-top: 10px;
+  }
 }
