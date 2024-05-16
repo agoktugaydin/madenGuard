@@ -3,6 +3,7 @@ import { Container, Typography, Grid, TextField, Button, Snackbar, Paper } from 
 import MuiAlert from '@mui/material/Alert';
 import axios from 'axios';
 import { useNavigate, useLocation  } from 'react-router-dom';
+const { apiUrl, apiPort} = require('../constants.js');
 
 const Login = ({ isLoggedIn, setLoggedIn }) => {
   const [formData, setFormData] = useState({
@@ -36,7 +37,7 @@ const Login = ({ isLoggedIn, setLoggedIn }) => {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post('http://localhost:3001/api/user/login', formData);
+      const response = await axios.post(`${apiUrl}:${apiPort}/api/user/login`, formData);
       const token = response.data.token;
       const role = response.data.role;
 
