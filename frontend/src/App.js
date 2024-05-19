@@ -9,8 +9,9 @@ import ListCustomersPage from './pages/ListCustomersPage';
 import RegisterCustomerPage from './pages/RegisterCustomerPage';
 import AllDevicesPage from './pages/DashBoardPage';
 import MapPage from './pages/MapPage';
-import GraphPage from './pages/GraphPages/GraphPage';
-import GraphEditor from './pages/GraphPages/GraphEditor';
+import TunnelPage from './pages/TunnelPages/TunnelPage';
+import TunnelEditor from './pages/TunnelPages/TunnelEditor';
+import TunnelCreator from './pages/TunnelPages/TunnelCreator'
 import DeviceDetailsPage from './pages/DeviceDetailsPage';
 import EditDevicePage from './pages/EditDevicePage';
 import LoginPage from './pages/LoginPage';
@@ -50,9 +51,10 @@ const App = () => {
             {isLoggedIn && (
               <>
                 <Button component={Link} to="/device-log" color="inherit">Device Log</Button>
-                <Button component={Link} to="/graph-editor" color="inherit">Graph Editor</Button>
-                <Button component={Link} to="/graph" color="inherit">Graph</Button>
-                <Button component={Link} to="/all-devices" color="inherit">Dashboard</Button>
+                <Button component={Link} to="/create-tunnel" color="inherit">Create Tunnel</Button>
+                <Button component={Link} to="/tunnel-editor" color="inherit">Tunnel Editor</Button>
+                <Button component={Link} to="/tunnel-dashboard" color="inherit">Tunnel Dashboard</Button>
+                <Button component={Link} to="/all-devices" color="inherit">Graph Dashboard</Button>
                 <Button component={Link} to="/device-list" color="inherit">Device List</Button>
                 <Button component={Link} to="/device-register" color="inherit">Device Register</Button>
                 {isAdmin && <Button component={Link} to="/customer-list" color="inherit">Customer List</Button>}
@@ -73,8 +75,9 @@ const App = () => {
           <Route path="/" element={<HomePage isLoggedIn={isLoggedIn} />} />
           <Route path="/login" element={<LoginPage setLoggedIn={setLoggedIn} isLoggedIn={isLoggedIn} />} />
           <Route path="/device-log" element={<PrivateRoute element={<DeviceLogPage isLoggedIn={isLoggedIn} />} />} />
-          <Route path="/graph-editor" element={<PrivateRoute element={<GraphEditor isLoggedIn={isLoggedIn} />} />} />
-          <Route path="/graph" element={<PrivateRoute element={<GraphPage isLoggedIn={isLoggedIn} />} />} />
+          <Route path="/create-tunnel" element={<PrivateRoute element={<TunnelCreator isLoggedIn={isLoggedIn} />} />} />
+          <Route path="/tunnel-editor" element={<PrivateRoute element={<TunnelEditor isLoggedIn={isLoggedIn} />} />} />
+          <Route path="/tunnel-dashboard" element={<PrivateRoute element={<TunnelPage isLoggedIn={isLoggedIn} />} />} />
           <Route path="/all-devices" element={<PrivateRoute element={<AllDevicesPage isLoggedIn={isLoggedIn} />} />} />
           <Route path="/device-list" element={<PrivateRoute element={<ListDevicesPage isLoggedIn={isLoggedIn} />} />} />
           <Route path="/device-register" element={<PrivateRoute element={<RegisterDevicePage isLoggedIn={isLoggedIn} />} />} />
