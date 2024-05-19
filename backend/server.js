@@ -5,6 +5,7 @@ const cors = require('cors');
 const dataRoutes = require('./routes/dataRoutes');
 const deviceRoutes = require('./routes/deviceRoutes');
 const userRoutes = require('./routes/userRoutes');
+const tunnelRoutes = require('./routes/tunnelRoutes');
 const { connectToMongoDB } = require('./config/dbConfig');
 const { saveToTimeSeriesDatabase, updateDeviceStatus, updateIsDeviceConnected } = require('./controllers/dataController');
 
@@ -127,6 +128,7 @@ app.post('/api/send-command/:deviceId', (req, res) => {
 app.use('/api', dataRoutes);
 app.use('/api', deviceRoutes);
 app.use('/api', userRoutes);
+app.use('/api', tunnelRoutes);
 
 // Start the server
 const PORT = 3001 //process.env.PORTHTTPS || 3001;
