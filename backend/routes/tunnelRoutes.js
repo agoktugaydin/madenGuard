@@ -1,3 +1,4 @@
+
 const express = require('express');
 const router = express.Router();
 const {
@@ -10,7 +11,10 @@ const {
     saveTunnelDataToDatabase,
     getTunnelDataFromDatabase,
     removeNodeFromDatabase,
-    formatCorridorData
+    formatCorridorData,
+    removeVertexFromDatabase,
+    saveNodeToDatabase,
+    fetchNodeFromDatabase,
 } = require('../controllers/tunnelController');
 
 // Endpoint to save nodes data
@@ -21,6 +25,29 @@ router.post('/nodes', async (req, res) => {
         res.json(savedNodes);
     } catch (error) {
         console.error('Error saving nodes:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Endpoint to save one node 
+router.post('/node', async (req, res) => {
+    try {
+        const node = req.body.node;
+        const savedNode = await saveNodeToDatabase([node]);
+        res.json(savedNode);
+    } catch (error) {
+        console.error('Error saving node:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Endpoint to fetch a single node
+router.get('/node/:nodeId', async (req, res) => {
+    try {
+        const node = await fetchNodeFromDatabase(req.params.nodeId);
+        res.json(node);
+    } catch (error) {
+        console.error('Error fetching node:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
@@ -135,6 +162,18 @@ router.delete('/removeNode/:nodeId', async (req, res) => {
         res.json({ message: `Node with ID ${nodeId} removed from the database` });
     } catch (error) {
         console.error('Error removing node:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Endpoint to remove a vertex from the database
+router.delete('/removeVertex/:vertexId', async (req, res) => {
+    try {
+        const vertexId = req.params.vertexId;
+        await removeVertexFromDatabase(vertexId);
+        res.json({ message: `Vertex with ID ${vertexId} removed from the database` });
+    } catch (error) {
+        console.error('Error removing vertex:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
