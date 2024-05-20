@@ -1,4 +1,6 @@
-const { Node, Vertex, Corridor} = require('../models/TunnelData');
+// tunnelController.js
+
+const { Node, Vertex, Corridor } = require('../models/TunnelData');
 
 async function saveCorridorToDatabase(tunnelId, cells) {
     try {
@@ -34,7 +36,7 @@ async function fetchCorridorFromDatabase(tunnelId) {
         console.error('Error fetching corridor:', error);
         throw error;
     }
-}
+} 
 
 async function saveNodesToDatabase(nodes) {
     try {
@@ -46,6 +48,48 @@ async function saveNodesToDatabase(nodes) {
         throw error;
     }
 }
+
+// save one node to db
+async function saveNodeToDatabase(node) {
+    try {
+        const savedNode = await Node.create(node);
+        console.log('Node saved to MongoDB:', savedNode);
+        return savedNode;
+    } catch (error) {
+        console.error('Error saving node:', error);
+        throw error;
+    }
+}
+
+// get one node from db
+
+async function fetchNodeFromDatabase(nodeId) {
+    try {
+        const node = await Node.findOne({
+            nodeId
+        });
+        console.log('Node fetched from MongoDB:', node);
+        return node;
+    } catch (error) {
+        console.error('Error fetching node:', error);
+        throw error;
+    }
+}
+
+
+// save one vertex to db
+async function saveVertexToDatabase(vertex) {
+    try {
+        const savedVertex = await Vertex.create(vertex);
+        console.log('Vertex saved to MongoDB:', savedVertex);
+        return savedVertex;
+    } catch (error) {
+        console.error('Error saving vertex:', error);
+        throw error;
+    }
+}
+
+
 
 async function saveVerticesToDatabase(vertices) {
     try {
@@ -80,11 +124,11 @@ async function fetchVerticesFromDatabase() {
     }
 }
 
-async function saveTunnelDataToDatabase(tunnelId, tunnelData) {
+async function saveTunnelDataToDatabase(tunnelData) {
     try {
-        const { nodes, vertices, corridor } = tunnelData;
+        const { nodes, vertices } = tunnelData;
 
-        if (!nodes || !Array.isArray(nodes) || !vertices || !Array.isArray(vertices) || !corridor || !Array.isArray(corridor)) {
+        if (!nodes || !Array.isArray(nodes) || !vertices || !Array.isArray(vertices)) {
             throw new Error('Invalid tunnel data format');
         }
 
@@ -106,15 +150,7 @@ async function saveTunnelDataToDatabase(tunnelId, tunnelData) {
             }
         }
 
-        // Save or update corridor
-        const existingCorridor = await Corridor.findOne({ tunnelId });
-        if (existingCorridor) {
-            await Corridor.updateOne({ tunnelId }, { cells: corridor });
-        } else {
-            await Corridor.create({ tunnelId, cells: corridor });
-        }
-        
-        return { nodes, vertices, corridor };
+        return { nodes, vertices };
     } catch (error) {
         console.error('Error saving tunnel data:', error);
         throw error;
@@ -145,6 +181,17 @@ async function removeNodeFromDatabase(nodeId) {
     }
 }
 
+// remove a vertex from the database
+async function removeVertexFromDatabase(start, end) {
+    try {
+        await Vertex.deleteOne
+            ({ start, end });
+        console.log(`Vertex with start ${start} and end ${end} removed from the database`);
+    } catch (error) {
+        console.error(`Error removing vertex with start ${start} and end ${end} from the database:`, error);
+        throw error;
+    }
+}
 
 module.exports = {
     saveTunnelDataToDatabase,
@@ -156,5 +203,9 @@ module.exports = {
     fetchCorridorFromDatabase,
     getTunnelDataFromDatabase,
     removeNodeFromDatabase,
-    formatCorridorData
+    formatCorridorData,
+    removeVertexFromDatabase,
+    saveNodeToDatabase,
+    saveVertexToDatabase,
+    fetchNodeFromDatabase
 };
