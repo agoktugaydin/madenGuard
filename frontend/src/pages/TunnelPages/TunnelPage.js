@@ -162,17 +162,8 @@ const Grid = ({ rows, cols, nodes, vertices, selectedCells, showGrid }) => {
 
 // Function to get the maximum row and column values
 const getMaxRowColValues = (nodes) => {
-  let maxRow = 0;
-  let maxCol = 0;
-
-  nodes.forEach((node) => {
-    if (node.row > maxRow) {
-      maxRow = node.row;
-    }
-    if (node.col > maxCol) {
-      maxCol = node.col;
-    }
-  });
+  let maxRow = 20;
+  let maxCol = 20;
 
   return { maxRow, maxCol };
 };
