@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
 import "./Grid.css";
-import nodesDataJson from "../TunnelData/nodes.json";
-import verticesDataJson from "../TunnelData/vertices.json";
+import nodesDataJson from "../TunnelData/nodes-empty.json";
+import verticesDataJson from "../TunnelData/vertices-empty.json";
 import { apiUrl, apiPort } from "../../constants";
 import "./TunnelCreator.css";
 
@@ -56,7 +56,7 @@ const Grid = ({ rows, cols, nodes, vertices, showGrid, onCellClick, selectedCell
         nodes.forEach((node) => {
             const nodeX = node.col * 50;
             const nodeY = node.row * 50;
-            const nodeColor = node.attributes.active === "true" ? "green" : node.attributes.active === "false" ? "red" : "black";
+            const nodeColor = node.attributes.status === "active" ? "green" : node.attributes.status === "deactive" ? "red" : "black";
             elements.push(<circle key={`node${node.id}`} cx={nodeX} cy={nodeY} r={10} fill={nodeColor} />);
         });
 
@@ -79,12 +79,12 @@ const Grid = ({ rows, cols, nodes, vertices, showGrid, onCellClick, selectedCell
 };
 
 const getMaxRowColValues = (nodes) => {
-    let maxRow = 0;
-    let maxCol = 0;
-    nodes.forEach((node) => {
-        if (node.row > maxRow) maxRow = node.row;
-        if (node.col > maxCol) maxCol = node.col;
-    });
+    let maxRow = 20; // for now
+    let maxCol = 20; // for now
+    // nodes.forEach((node) => {
+    //     if (node.row > maxRow) maxRow = node.row;
+    //     if (node.col > maxCol) maxCol = node.col;
+    // });
     return { maxRow, maxCol };
 };
 
@@ -173,7 +173,16 @@ const TunnelCreator = () => {
     return (
         <div className="TunnelCreator">
             <div className="tunnel-buttons">
-                <input type="file" accept=".json" onChange={handleFileUpload} />
+                <div>
+                    <input
+                        type="file"
+                        accept=".json"
+                        onChange={handleFileUpload}
+                        id="fileInput"
+                        style={{ display: 'none' }}
+                    />
+                    <button onClick={() => document.getElementById('fileInput').click()}>Upload File</button>
+                </div>
                 <button onClick={exportSelectedCells}>Export Selected Cells</button>
                 <input
                     type="number"
