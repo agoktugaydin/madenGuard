@@ -15,6 +15,7 @@ const {
     removeVertexFromDatabase,
     saveNodeToDatabase,
     fetchNodeFromDatabase,
+    fetchCorridorIdsFromDatabase
 } = require('../controllers/tunnelController');
 
 // Endpoint to save nodes data
@@ -83,6 +84,17 @@ router.post('/corridor', async (req, res) => {
         res.json(savedCorridors);
     } catch (error) {
         console.error('Error saving corridors:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Endpoint to fetch corridor ids
+router.get('/corridorIds', async (req, res) => {
+    try {
+        const corridorIds = await fetchCorridorIdsFromDatabase();
+        res.json(corridorIds);
+    } catch (error) {
+        console.error('Error fetching corridors:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
