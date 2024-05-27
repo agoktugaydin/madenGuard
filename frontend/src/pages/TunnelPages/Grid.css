@@ -1,0 +1,127 @@
+/* Grid.css */
+
+svg {
+    border: 1px solid #ccc; /* Add border for visualization */
+}
+
+.grid-line {
+    stroke: #666565; /* Line color */
+    stroke-width: 1px; /* Line width */
+}
+
+.vertex-line {
+    stroke: blue; /* Vertex line color */
+    stroke-width: 1px; /* Vertex line width */
+}
+
+.border-line {
+  stroke: #000; /* Line color for border lines */
+  stroke-width: 2px; /* Line width for border lines */
+}
+
+/* Add styles for the toggle button */
+.toggle-button {
+    text-align: center;
+    margin-bottom: 10px;
+    margin-top: 10px;
+  }
+  
+  .toggle-button button {
+    padding: 10px 20px;
+    background-color: #318fce;
+    border: none;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  
+  .toggle-button button:hover {
+    background-color: #0f5a86;
+  }
+  
+  /* Center the grid */
+  .grid-container-2 {
+    display: flex;
+    justify-content: center;
+  }
+
+
+.grid-container {
+    display: flex;
+  }
+  
+  .nodes-container,
+  .connections-container {
+    flex: 0;
+    padding: 25px;
+    border: 2px solid #ccc;
+    margin: 0px 10px 0px 10px; 
+  }
+  
+  .grid {
+    flex: 2;
+    border: 1px solid #ccc;
+    margin: -5px;
+  }
+  
+
+  
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  li {
+    margin-bottom: 5px;
+  }
+  
+  /* Add styles for the download buttons */
+.tunnel-buttons {
+    display: flex;
+    justify-content: center; /* Center the buttons horizontally */
+    margin-bottom: 20px;
+  }
+  
+  .tunnel-buttons button {
+    margin: 10px 10px; /* Add some space between the buttons */
+    padding: 10px 20px; /* Add padding to the buttons */
+    background-color: #318fce; /* Green */
+    border: none;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 8px; /* Rounded corners */
+    cursor: pointer;
+  }
+  
+  .tunnel-buttons button:hover {
+    background-color: #0f5a86; /* Darker green on hover */
+  }
+
+  /* Add styles for the remove buttons */
+li button {
+    margin-left: 10px;
+    padding: 5px;
+
+    border: none;
+    color: white;
+    border-radius: 100%; /* Make it a circle */
+    cursor: pointer;
+  }
+  
+  li button:hover {
+    background-color: #d32f2f; /* Darker red on hover */
+  }
+
+  .grid-container {
+  position: relative;
+}
+
+.grid-container .grid {
+  cursor: pointer;
+}

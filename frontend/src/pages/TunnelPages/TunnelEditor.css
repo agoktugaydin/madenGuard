@@ -1,0 +1,29 @@
+.tunnel-editor {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.tunnel-buttons {
+    margin-bottom: 10px;
+}
+
+.grid-container {
+    border: 1px solid black;
+    position: relative;
+}
+
+.grid {
+    cursor: pointer;
+}
+
+.grid-line {
+    stroke: #ccc;
+    stroke-width: 1;
+}
+
+.vertex-line {
+    stroke: black;
+    stroke-width: 2;
+}
