@@ -179,10 +179,10 @@ const Grid = ({ rows, cols, nodes, vertices, corridors, addNode, addVertex, togg
 
 // Get node color
 const getNodeColor = (node) => {
-  switch (node.attributes.active) {
-    case "yes":
+  switch (node.attributes.status) {
+    case "active":
       return "green";
-    case "no":
+    case "deactive":
       return "red";
     default:
       return "black";
@@ -199,13 +199,13 @@ const TunnelEditor = () => {
     const fetchData = async () => {
       try {
         const tunnelResponse = await axios.get(`${apiUrl}:${apiPort}/api/getTunnelData/1`);
-        const corridorResponse = await axios.get(`${apiUrl}:${apiPort}/api/corridor/1`);
+        // const corridorResponse = await axios.get(`${apiUrl}:${apiPort}/api/corridor/1`);
 
         const processedTunnelData = processTunnelData(tunnelResponse.data);
         setNodes(processedTunnelData.nodes);
         setVertices(processedTunnelData.vertices);
 
-        setCorridors(corridorResponse.data);
+        setCorridors(tunnelResponse.data.corridor);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -239,6 +239,7 @@ const TunnelEditor = () => {
   // Add a node
   const addNode = ({ row, col }) => {
     const newNode = {
+      deviceId: selectedDeviceId, // Use the selected device ID here
       tunnelId: 1,
       nodeId: nodes.length + 1,
       row,
@@ -275,7 +276,7 @@ const TunnelEditor = () => {
   const toggleNodeState = (nodeId) => {
     setNodes(nodes.map(node => {
       if (node.nodeId === nodeId) {
-        return { ...node, attributes: { ...node.attributes, active: node.attributes.active === "yes" ? "no" : "yes" } };
+        return { ...node, attributes: { ...node.attributes, status: node.attributes.status === "active" ? "deactive" : "active" } };
       }
       return node;
     }));
@@ -287,10 +288,41 @@ const TunnelEditor = () => {
     return JSON.stringify(tunnelData);
   };
 
+  // Define deviceIds state
+  const [deviceIds, setDeviceIds] = useState([]);
+
+  // Fetch device IDs
+  const fetchDeviceIds = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}:${apiPort}/api/deviceIds`);
+      setDeviceIds(response.data); // Set deviceIds state with the array of device IDs
+    } catch (error) {
+      console.error('Error fetching device IDs:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchDeviceIds(); // Fetch device IDs when the component mounts
+  }, []);
+
+  const [selectedDeviceId, setSelectedDeviceId] = useState(null);
+
+  // Handle device selection
+  const handleDeviceSelect = (deviceId) => {
+    setSelectedDeviceId(deviceId);
+    console.log('Selected Device ID:', deviceId);
+  };
+
   return (
     <div className="TunnelEditor">
       <div className="tunnel-buttons">
         <button onClick={saveTunnelData}>Save Tunnel</button>
+        <select onChange={(event) => handleDeviceSelect(event.target.value)}>
+          <option value="">Select a Device</option>
+          {deviceIds.map((deviceId, index) => (
+            <option key={index} value={deviceId}>{deviceId}</option>
+          ))}
+        </select>
       </div>
       <Grid
         rows={20}
