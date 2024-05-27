@@ -76,7 +76,7 @@ const RegisterCustomer = ({ isLoggedIn }) => {
             });
 
             // Show success message
-            setSnackbarMessage('Device registered successfully!');
+            setSnackbarMessage('Customer registered successfully!');
             setSnackbarOpen(true);
 
             // // Automatically navigate after a delay (e.g., 2000 milliseconds = 2 seconds)
