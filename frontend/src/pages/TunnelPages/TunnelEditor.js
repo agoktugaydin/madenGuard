@@ -2,11 +2,12 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./TunnelEditor.css";
 import { apiUrl, apiPort } from "../../constants";
+import "./Grid.css";
 
-// Grid component to render the grid
-const Grid = ({ rows, cols, nodes, vertices, addNode, addVertex, toggleNodeState, removeNode, removeVertex }) => {
+const Grid = ({ rows, cols, nodes, vertices, corridors, addNode, addVertex, toggleNodeState, removeNode, removeVertex }) => {
   const [startNode, setStartNode] = useState(null);
 
+  // Handle click event
   const handleClick = (event) => {
     const rect = event.target.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
@@ -22,6 +23,7 @@ const Grid = ({ rows, cols, nodes, vertices, addNode, addVertex, toggleNodeState
         toggleNodeState(clickedNode.nodeId);
         setStartNode(null);
       } else if (startNode) {
+
         addVertex(startNode.nodeId, clickedNode.nodeId);
         setStartNode(null);
       } else {
@@ -33,10 +35,41 @@ const Grid = ({ rows, cols, nodes, vertices, addNode, addVertex, toggleNodeState
     }
   };
 
+  // Handle right click event for removing node
+  const handleRightClick = (event) => {
+    event.preventDefault();
 
+    const rect = event.target.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+
+    const row = Math.floor(mouseY / 50);
+    const col = Math.floor(mouseX / 50);
+
+    const clickedNode = nodes.find(node => node.row === row && node.col === col);
+
+    if (clickedNode) {
+      if (window.confirm("Are you sure you want to remove this node?")) {
+        removeNode(clickedNode.nodeId);
+
+        // remove node from database
+        axios.delete(`${apiUrl}:${apiPort}/api/removeNode/${clickedNode.nodeId}`)
+          .then(response => console.log(response.data))
+          .catch(error => console.error('Error removing node:', error));
+
+        // TODO remove all vertices connected to this node
+        // TODO remove vertex from database
+      }
+    }
+
+    if (clickedNode) {
+      removeNode(clickedNode.nodeId);
+    }
+  };
+
+  // Draw grid lines and nodes
   const drawLinesAndNodes = () => {
     const elements = [];
-
     for (let i = 0; i <= rows; i++) {
       elements.push(
         <line
@@ -61,8 +94,33 @@ const Grid = ({ rows, cols, nodes, vertices, addNode, addVertex, toggleNodeState
         />
       );
     }
-
     return elements;
+  };
+
+  // Draw corridors
+  const drawCorridors = () => {
+    const elements = [];
+    corridors.forEach(corridor => {
+      corridor.cells.forEach(cell => {
+        const fill = getNodeFill(cell); // determine fill color based on cell
+        elements.push(
+          <rect
+            key={`${cell.row}-${cell.col}`}
+            x={cell.col * 50}
+            y={cell.row * 50}
+            width={50}
+            height={50}
+            fill={fill}
+          />
+        );
+      });
+    });
+    return elements;
+  };
+
+  // Get node fill color
+  const getNodeFill = (cell) => {
+    return "grey"; // Fill all cells with grey color
   };
 
   return (
@@ -71,9 +129,11 @@ const Grid = ({ rows, cols, nodes, vertices, addNode, addVertex, toggleNodeState
         width={cols * 50 + 2}
         height={rows * 50 + 2}
         onClick={handleClick}
+        onContextMenu={handleRightClick} // Add right click event listener
         className="grid"
       >
         {drawLinesAndNodes()}
+        {drawCorridors()}
         {nodes.map((node, index) => (
           <circle
             key={`node${index}`}
@@ -103,11 +163,21 @@ const Grid = ({ rows, cols, nodes, vertices, addNode, addVertex, toggleNodeState
             />
           );
         })}
+        {/* Prevent clicks on grid */}
+        <rect
+          width={cols * 50 + 2}
+          height={rows * 50 + 2}
+          fill="transparent"
+          onClick={(event) => event.preventDefault()}
+        />
       </svg>
     </div>
   );
 };
 
+
+
+// Get node color
 const getNodeColor = (node) => {
   switch (node.attributes.active) {
     case "yes":
@@ -119,79 +189,39 @@ const getNodeColor = (node) => {
   }
 };
 
+// Tunnel editor component
 const TunnelEditor = () => {
   const [nodes, setNodes] = useState([]);
   const [vertices, setVertices] = useState([]);
+  const [corridors, setCorridors] = useState([]);
 
   useEffect(() => {
-    const fetchTunnelData = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(`${apiUrl}:${apiPort}/api/getTunnelData/1`);
-        const processedData = processTunnelData(response.data); // Process received data
-        setNodes(processedData.nodes);
-        setVertices(processedData.vertices);
+        const tunnelResponse = await axios.get(`${apiUrl}:${apiPort}/api/getTunnelData/1`);
+        const corridorResponse = await axios.get(`${apiUrl}:${apiPort}/api/corridor/1`);
+
+        const processedTunnelData = processTunnelData(tunnelResponse.data);
+        setNodes(processedTunnelData.nodes);
+        setVertices(processedTunnelData.vertices);
+
+        setCorridors(corridorResponse.data);
       } catch (error) {
-        console.error("Error fetching tunnel data:", error);
+        console.error("Error fetching data:", error);
       }
     };
 
-    fetchTunnelData();
+    fetchData();
   }, []);
 
-  const addNode = ({ row, col }) => {
-    const newNode = {
-      tunnelId: 1,
-      nodeId: nodes.length + 1,
-      row,
-      col,
-      attributes: { name: `Node ${nodes.length + 1}`, active: "yes" }
-    };
-    const updatedNodes = [...nodes, newNode];
-    setNodes(updatedNodes);
-  };
-
-  const removeNode = (nodeId) => {
-    const updatedNodes = nodes.filter(node => node.nodeId !== nodeId);
-    setNodes(updatedNodes);
-
-    const updatedVertices = vertices.filter(vertex => vertex.start !== nodeId && vertex.end !== nodeId);
-    setVertices(updatedVertices);
-  };
-
-  const addVertex = (start, end) => {
-    const newVertex = { start, end, tunnelId: 1 };
-    const updatedVertices = [...vertices, newVertex];
-    setVertices(updatedVertices);
-  };
-
-  const removeVertex = (index) => {
-    const updatedVertices = vertices.filter((_, i) => i !== index);
-    setVertices(updatedVertices);
-  };
-
-  const toggleNodeState = (nodeId) => {
-    setNodes(nodes.map(node => {
-      if (node.nodeId === nodeId) {
-        return { ...node, attributes: { ...node.attributes, active: node.attributes.active === "yes" ? "no" : "yes" } };
-      }
-      return node;
-    }));
-  };
-
-
+  // Process tunnel data
   const processTunnelData = (data) => {
-    // Process received tunnel data
-    // Remove unnecessary fields like _id, __v
     const processedNodes = data.nodes.map(({ _id, __v, ...rest }) => rest);
     const processedVertices = data.vertices.map(({ _id, __v, ...rest }) => rest);
     return { nodes: processedNodes, vertices: processedVertices };
   };
 
-  const generateTunnelDataJSON = () => {
-    const tunnelData = { nodes, vertices };
-    return JSON.stringify(tunnelData);
-  };
-
+  // Save tunnel data
   const saveTunnelData = async () => {
     try {
       const tunnelData = generateTunnelDataJSON();
@@ -206,6 +236,57 @@ const TunnelEditor = () => {
     }
   };
 
+  // Add a node
+  const addNode = ({ row, col }) => {
+    const newNode = {
+      tunnelId: 1,
+      nodeId: nodes.length + 1,
+      row,
+      col,
+      attributes: { name: `Node ${nodes.length + 1}`, active: "yes" }
+    };
+    const updatedNodes = [...nodes, newNode];
+    setNodes(updatedNodes);
+  };
+
+  // Remove a node
+  const removeNode = (nodeId) => {
+    const updatedNodes = nodes.filter(node => node.nodeId !== nodeId);
+    setNodes(updatedNodes);
+
+    const updatedVertices = vertices.filter(vertex => vertex.start !== nodeId && vertex.end !== nodeId);
+    setVertices(updatedVertices);
+  };
+
+  // Add a vertex
+  const addVertex = (start, end) => {
+    const newVertex = { start, end, tunnelId: 1 };
+    const updatedVertices = [...vertices, newVertex];
+    setVertices(updatedVertices);
+  };
+
+  // Remove a vertex
+  const removeVertex = (index) => {
+    const updatedVertices = vertices.filter((_, i) => i !== index);
+    setVertices(updatedVertices);
+  };
+
+  // Toggle node state
+  const toggleNodeState = (nodeId) => {
+    setNodes(nodes.map(node => {
+      if (node.nodeId === nodeId) {
+        return { ...node, attributes: { ...node.attributes, active: node.attributes.active === "yes" ? "no" : "yes" } };
+      }
+      return node;
+    }));
+  };
+
+  // Generate tunnel data JSON
+  const generateTunnelDataJSON = () => {
+    const tunnelData = { nodes, vertices };
+    return JSON.stringify(tunnelData);
+  };
+
   return (
     <div className="TunnelEditor">
       <div className="tunnel-buttons">
@@ -216,6 +297,7 @@ const TunnelEditor = () => {
         cols={20}
         nodes={nodes}
         vertices={vertices}
+        corridors={corridors}
         addNode={addNode}
         addVertex={addVertex}
         toggleNodeState={toggleNodeState}
