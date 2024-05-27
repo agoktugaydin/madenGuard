@@ -21,12 +21,14 @@ const RegisterDevice = ({ isLoggedIn }) => {
     title: '',
     zone: '',
     status: '',
+    selectedUser: '', // New state for admin only
   });
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [masterDevices, setMasterDevices] = useState([]);
   const [masterTitles, setMasterTitles] = useState([]);
+  const [users, setUsers] = useState([]); // New state for admin only
 
   const navigate = useNavigate();
 
@@ -40,18 +42,12 @@ const RegisterDevice = ({ isLoggedIn }) => {
   useEffect(() => {
     // Fetch master devices and titles
     fetchDevicesAndExtractMasters();
-  }, []);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleCloseSnackbar = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
+    // Fetch users for admins
+    if (localStorage.getItem('role') === 'ROLE_ADMIN') {
+      fetchUsers();
     }
-    setSnackbarOpen(false);
-  };
+  }, []);
 
   const fetchDevicesAndExtractMasters = async () => {
     try {
@@ -67,6 +63,8 @@ const RegisterDevice = ({ isLoggedIn }) => {
 
       // Extract master devices with type "master"
       const masterDevices = response.data.filter((device) => device.type === 'master');
+
+      // Set the initial master devices
       setMasterDevices(masterDevices);
 
       // Extract titles and masterIds of master devices
@@ -95,7 +93,7 @@ const RegisterDevice = ({ isLoggedIn }) => {
     }
   };
 
-  const handleSubmit = async () => {
+  const fetchUsers = async () => {
     try {
       // Retrieve the token from localStorage or state
       const token = localStorage.getItem('token');
@@ -105,11 +103,66 @@ const RegisterDevice = ({ isLoggedIn }) => {
         Authorization: `${token}`,
       };
 
-      // Include masterId in the form data for registration
-      const registrationData = {
-        ...formData,
-        masterId: formData.masterId == 'None' ? '' : formData.masterId,
+      const response = await axios.get(`${apiUrl}:${apiPort}/api/user`, { headers });
+      // Filter out users with ROLE_CUSTOMER
+      const customers = response.data.filter(user => user.role === 'ROLE_CUSTOMER');
+      setUsers(customers);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      // Handle errors or show a user-friendly message
+    }
+  };
+
+  const handleChange = async (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+
+    // If the selected user changes and it's not empty (i.e., a customer is selected)
+    if (name === 'selectedUser' && value !== '') {
+      // Filter master devices based on ownerId
+      const customerMasterDevices = masterDevices.filter((device) => device.ownerId === value);
+      setMasterDevices(customerMasterDevices);
+    }
+  };
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
+
+  const handleSubmit = async () => {
+    try {
+      // Retrieve the token from localStorage or state
+      const token = localStorage.getItem('token');
+      // Retrieve the userId from localStorage
+      const userId = localStorage.getItem('userId');
+
+      // Set the headers with the token
+      const headers = {
+        Authorization: `${token}`,
       };
+
+      // Include masterId and ownerID in the form data for registration
+      let registrationData = {
+        ...formData,
+        masterId: formData.masterId === 'None' ? '' : formData.masterId,
+      };
+
+      // If the user is an admin and a user is selected, use that user's ID as ownerID
+      if (localStorage.getItem('role') === 'ROLE_ADMIN' && formData.selectedUser !== '') {
+        registrationData = {
+          ...registrationData,
+          ownerId: formData.selectedUser,
+        };
+      } else {
+        // Otherwise, use the logged-in user's ID as ownerID
+        registrationData = {
+          ...registrationData,
+          ownerId: userId,
+        };
+      }
 
       const response = await axios.post(`${apiUrl}:${apiPort}/api/device`, registrationData, {
         headers,
@@ -118,10 +171,11 @@ const RegisterDevice = ({ isLoggedIn }) => {
 
       // Clear form fields
       setFormData({
-        masterId: masterTitles.length > 0 ? masterTitles[0].masterId : '', // Set default masterId
+        masterId: masterTitles.length > 0 ? masterTitles[0].masterId : '', //Set default masterId
         title: '',
         zone: '',
         status: '',
+        selectedUser: '', // Reset selectedUser field
       });
 
       // Show success message
@@ -146,6 +200,24 @@ const RegisterDevice = ({ isLoggedIn }) => {
         </Typography>
         <form>
           <Grid container spacing={2}>
+            {localStorage.getItem('role') === 'ROLE_ADMIN' && (
+              <Grid item xs={12}>
+                <Select
+                  fullWidth
+                  label="Select User"
+                  name="selectedUser"
+                  value={formData.selectedUser}
+                  onChange={handleChange}
+                >
+                  <MenuItem value="">Select User</MenuItem>
+                  {users.map((user) => (
+                    <MenuItem key={user.userId} value={user.userId}>
+                      {user.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </Grid>
+            )}
             <Grid item xs={12}>
               <Select
                 fullWidth
@@ -176,7 +248,6 @@ const RegisterDevice = ({ isLoggedIn }) => {
           </Grid>
         </form>
       </Paper>
-
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}
@@ -192,7 +263,9 @@ const RegisterDevice = ({ isLoggedIn }) => {
         </MuiAlert>
       </Snackbar>
     </Container>
+
   );
 };
 
 export default RegisterDevice;
+
