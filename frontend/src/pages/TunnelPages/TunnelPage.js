@@ -1,234 +1,191 @@
 import React, { useState, useEffect } from "react";
-import "./Grid.css";
-import nodesDataJson from "../TunnelData/nodes.json";
-import verticesDataJson from "../TunnelData/vertices.json";
-import selectedCellsJson from "../TunnelData/selectedCells.json";
+import axios from "axios";
+import "./TunnelEditor.css";
 import { apiUrl, apiPort } from "../../constants";
+import "./Grid.css";
 
-const Grid = ({ rows, cols, nodes, vertices, selectedCells, showGrid }) => {
-  const drawGridLines = () => {
+const Grid = ({ rows, cols, nodes, vertices, corridors }) => {
+  const drawLinesAndNodes = () => {
     const elements = [];
-
-    if (showGrid) {
-      // Draw horizontal lines
-      for (let i = 0; i <= rows; i++) {
-        elements.push(
-          <line
-            key={`h${i}`}
-            className="grid-line"
-            x1="0"
-            y1={i * 50}
-            x2={cols * 50}
-            y2={i * 50}
-          />
-        );
-      }
-
-      // Draw vertical lines
-      for (let j = 0; j <= cols; j++) {
-        elements.push(
-          <line
-            key={`v${j}`}
-            className="grid-line"
-            x1={j * 50}
-            y1="0"
-            x2={j * 50}
-            y2={rows * 50}
-          />
-        );
-      }
-    }
-
-    // Draw thicker border lines for top, left, right, and bottom
-    elements.push(
-      <line
-        key="borderTop"
-        className="border-line"
-        x1="0"
-        y1="0"
-        x2={cols * 50}
-        y2="0"
-      />
-    );
-    elements.push(
-      <line
-        key="borderLeft"
-        className="border-line"
-        x1="0"
-        y1="0"
-        x2="0"
-        y2={rows * 50}
-      />
-    );
-    elements.push(
-      <line
-        key="borderRight"
-        className="border-line"
-        x1={cols * 50}
-        y1="0"
-        x2={cols * 50}
-        y2={rows * 50}
-      />
-    );
-    elements.push(
-      <line
-        key="borderBottom"
-        className="border-line"
-        x1="0"
-        y1={rows * 50}
-        x2={cols * 50}
-        y2={rows * 50}
-      />
-    );
-
-    return elements;
-  };
-
-  // Function to draw the selected cells
-  const drawSelectedCells = () => {
-    return selectedCells.map((cell) => {
-      const cellX = cell.col * 50;
-      const cellY = cell.row * 50;
-      return (
-        <rect
-          key={`selectedCell${cell.id}`}
-          x={cellX}
-          y={cellY}
-          width={50}
-          height={50}
-          fill="gray" // Set selected cell color
-          opacity={0.5} // Set opacity for visibility
-        />
-      );
-    });
-  };
-
-  // Function to draw the nodes and vertices
-  const drawNodesAndVertices = () => {
-    const elements = [];
-
-    // Draw nodes
-    nodes.forEach((node) => {
-      const nodeX = node.col * 50;
-      const nodeY = node.row * 50;
-      const nodeColor =
-        node.attributes.active === "true"
-          ? "green"
-          : node.attributes.active === "false"
-            ? "red"
-            : "black"; // Determine node color based on active property
-      elements.push(
-        <circle
-          key={`node${node.id}`}
-          cx={nodeX}
-          cy={nodeY}
-          r={10}
-          fill={nodeColor} // Set node color
-        />
-      );
-    });
-
-    // Draw vertices
-    vertices.forEach((vertex) => {
-      const start = vertex[0];
-      const end = vertex[1];
-      const startX = nodes[start].col * 50;
-      const startY = nodes[start].row * 50;
-      const endX = nodes[end].col * 50;
-      const endY = nodes[end].row * 50;
+    for (let i = 0; i <= rows; i++) {
       elements.push(
         <line
-          key={`vertex${start}${end}`}
-          className="vertex-line"
-          x1={startX}
-          y1={startY}
-          x2={endX}
-          y2={endY}
+          key={`h${i}`}
+          className="grid-line"
+          x1="0"
+          y1={i * 50}
+          x2={cols * 50}
+          y2={i * 50}
         />
       );
-    });
-
+    }
+    for (let j = 0; j <= cols; j++) {
+      elements.push(
+        <line
+          key={`v${j}`}
+          className="grid-line"
+          x1={j * 50}
+          y1="0"
+          x2={j * 50}
+          y2={rows * 50}
+        />
+      );
+    }
     return elements;
+  };
+
+  const drawCorridors = () => {
+    const elements = [];
+    corridors.forEach(corridor => {
+      corridor.cells.forEach(cell => {
+        const fill = getNodeFill(cell);
+        elements.push(
+          <rect
+            key={`${cell.row}-${cell.col}`}
+            x={cell.col * 50}
+            y={cell.row * 50}
+            width={50}
+            height={50}
+            fill={fill}
+          />
+        );
+      });
+    });
+    return elements;
+  };
+
+  const getNodeFill = (cell) => {
+    return "grey"; // Fill all cells with grey color
+  };
+
+  const getNodeColor = (node) => {
+    switch (node.attributes.status) {
+      case "active":
+        return "green";
+      case "deactive":
+        return "red";
+      default:
+        return "black";
+    }
   };
 
   return (
-    <svg width={cols * 50 + 2} height={rows * 50 + 2}>
-      {drawGridLines()}
-      {drawSelectedCells()}
-      {drawNodesAndVertices()}
-    </svg>
+    <div className="grid-container" style={{ width: cols * 50 + 2, height: rows * 50 + 2 }}>
+      <svg
+        width={cols * 50 + 2}
+        height={rows * 50 + 2}
+        className="grid"
+      >
+        {drawLinesAndNodes()}
+        {drawCorridors()}
+        {nodes.map((node, index) => (
+          <g key={`node${index}`}>
+            <circle
+              cx={node.col * 50}
+              cy={node.row * 50}
+              r={10}
+              fill={getNodeColor(node)}
+            />
+            {node.gasData && (
+              <text
+                x={node.col * 50}
+                y={node.row * 50}
+                dy={-15}
+                textAnchor="middle"
+                fill="black"
+                fontSize="10"
+              >
+                {node.gasData.length > 0 ? `${node.gasData[node.gasData.length - 1].gasIntensity}%` : 'No Data'}
+              </text>
+            )}
+          </g>
+        ))}
+        {vertices.map((vertex, index) => {
+          const startNode = nodes.find(n => n.nodeId === vertex.start);
+          const endNode = nodes.find(n => n.nodeId === vertex.end);
+
+          if (!startNode || !endNode) {
+            console.error(`Vertex ${index} has undefined start or end node`);
+            return null; // Skip rendering this vertex if start or end node is undefined
+          }
+
+          return (
+            <line
+              key={`vertex${index}`}
+              className="vertex-line"
+              x1={startNode.col * 50}
+              y1={startNode.row * 50}
+              x2={endNode.col * 50}
+              y2={endNode.row * 50}
+            />
+          );
+        })}
+      </svg>
+    </div>
   );
 };
 
-// Function to get the maximum row and column values
-const getMaxRowColValues = (nodes) => {
-  let maxRow = 20;
-  let maxCol = 20;
-
-  return { maxRow, maxCol };
-};
-
-// App component
 const TunnelPage = () => {
-  const [loading, setLoading] = useState(true);
-  const [nodesData, setNodesData] = useState([]);
-  const [verticesData, setVerticesData] = useState([]);
-  const [selectedCells, setSelectedCells] = useState([]);
-  const [showGrid, setShowGrid] = useState(true);
+  const [nodes, setNodes] = useState([]);
+  const [vertices, setVertices] = useState([]);
+  const [corridors, setCorridors] = useState([]);
 
-  // Fetch tunnel data from the backend
   useEffect(() => {
-    const fetchTunnelData = async () => {
+    const fetchGasData = async (deviceId) => {
       try {
-        const tunnelId = "-1"; // "1"; // FOR NOW
-        const response = await fetch(`${apiUrl}:${apiPort}/api/getTunnelData/${tunnelId}`);
-        const data = await response.json();
-        console.log("getTunnelIdhData", data.nodes, data.vertices);
-        setNodesData(data.nodes);
-        setVerticesData(data.vertices);
-        setLoading(false); // Set loading to false after data is fetched
+        const response = await axios.get(`${apiUrl}:${apiPort}/api/data`, {
+          params: { deviceId, timeRange: 2 }
+        });
+        return response.data;
       } catch (error) {
-        console.error("Error fetching tunnel data:", error);
-        setLoading(false); // Set loading to false if there's an error
+        console.error(`Error fetching gas data for device ${deviceId}:`, error);
+        return [];
       }
     };
 
-    // use json files:
-    setNodesData(nodesDataJson);
-    setVerticesData(verticesDataJson);
-    setSelectedCells(selectedCellsJson); // Set selected cells data
-    setLoading(false);
+    const updateGasData = async (nodes) => {
+      console.log("Updating gas data for nodes..."); // Log to ensure the function is being called
+      const updatedNodes = await Promise.all(nodes.map(async (node) => {
+        const gasData = await fetchGasData(node.deviceId);
+        return { ...node, gasData };
+      }));
+      setNodes(updatedNodes);
+    };
 
-    //fetchTunnelData(); // commented to use json files
-  }, []);
+    const fetchData = async () => {
+      try {
+        const tunnelResponse = await axios.get(`${apiUrl}:${apiPort}/api/getTunnelData/1`);
+        const processedTunnelData = processTunnelData(tunnelResponse.data);
+        setNodes(processedTunnelData.nodes);
+        setVertices(processedTunnelData.vertices);
+        setCorridors(tunnelResponse.data.corridor);
 
-  const maxValues = getMaxRowColValues(nodesData);
-  const gridRows = maxValues.maxRow + 1; // Number of rows
-  const gridCols = maxValues.maxCol + 1; // Number of columns
+        // Start periodic updates for gas data
+        const intervalId = setInterval(() => updateGasData(processedTunnelData.nodes), 2000);
+        return () => clearInterval(intervalId); // Cleanup interval on component unmount
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
 
-  // Render loading state if data is still being fetched
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+    fetchData(); // Initial data fetch
+  }, []); // Empty dependency array ensures this runs only once on mount
+
+  const processTunnelData = (data) => {
+    const processedNodes = data.nodes.map(({ _id, __v, ...rest }) => rest);
+    const processedVertices = data.vertices.map(({ _id, __v, ...rest }) => rest);
+    return { nodes: processedNodes, vertices: processedVertices };
+  };
 
   return (
-    <div className="TunnelPage">
-      <div className="toggle-button">
-        {/* <button onClick={() => setShowGrid(!showGrid)}>
-          {showGrid ? "Hide Grid" : "Show Grid"}
-        </button> */}
-      </div>
-      <div className="grid-container-2">
-        <Grid
-          rows={gridRows}
-          cols={gridCols}
-          nodes={nodesData}
-          vertices={verticesData}
-          selectedCells={selectedCells} // Pass selected cells data
-          showGrid={showGrid}
-        />
-      </div>
-      {/* Render nodes and vertices */}
+    <div className="TunnelEditor">
+      <Grid
+        rows={20}
+        cols={20}
+        nodes={nodes}
+        vertices={vertices}
+        corridors={corridors}
+      />
     </div>
   );
 };
