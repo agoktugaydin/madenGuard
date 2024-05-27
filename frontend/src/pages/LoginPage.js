@@ -41,13 +41,19 @@ const Login = ({ isLoggedIn, setLoggedIn }) => {
       const token = response.data.token;
       const role = response.data.role;
 
+      // Token'i çözümle
+      const decodedToken = decodeToken(token);
+      const userId = decodedToken.userId;
+
       // Set the role in local storage or a global state management tool
       localStorage.setItem('role', role);
       // Set the token in local storage or a global state management tool
       localStorage.setItem('token', token);
+      // Set the userID in local storage or a global state management tool
+      localStorage.setItem('userId', userId);
+
       setLoggedIn(true);
 
-      // navigate(-2);
       navigate('/');
     } catch (error) {
       console.error('Error logging in:', error);
@@ -55,6 +61,15 @@ const Login = ({ isLoggedIn, setLoggedIn }) => {
       setSnackbarOpen(true);
     }
   };
+
+
+  const decodeToken = (token) => {
+    const tokenPayload = token.split('.')[1]; // Token'in payload kısmını al
+    const decodedPayload = atob(tokenPayload); // Base64 kodlu payload'ı çöz
+
+    return JSON.parse(decodedPayload); // JSON formatına çevir
+  };
+
 
   return (
     <Container maxWidth="md" sx={{ paddingTop: 4 }}>
