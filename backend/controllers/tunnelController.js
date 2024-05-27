@@ -1,4 +1,3 @@
-// tunnelController.js
 
 const { Node, Vertex, Corridor } = require('../models/TunnelData');
 
@@ -193,6 +192,19 @@ async function removeVertexFromDatabase(start, end) {
     }
 }
 
+async function fetchCorridorIdsFromDatabase() {
+    try {
+        const distinctCorridorIds = await Corridor.distinct('tunnelId');
+        console.log('Distinct corridor IDs fetched from MongoDB:', distinctCorridorIds);
+        return distinctCorridorIds;
+    }
+    catch (error) {
+        console.error('Error fetching distinct corridor IDs:', error);
+        throw error;
+    }
+}
+
+
 module.exports = {
     saveTunnelDataToDatabase,
     saveNodesToDatabase,
@@ -207,5 +219,6 @@ module.exports = {
     removeVertexFromDatabase,
     saveNodeToDatabase,
     saveVertexToDatabase,
-    fetchNodeFromDatabase
+    fetchNodeFromDatabase,
+    fetchCorridorIdsFromDatabase
 };
