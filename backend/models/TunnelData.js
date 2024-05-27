@@ -8,14 +8,15 @@ const corridorSchema = new Schema({
 
 
 const nodeSchema = new Schema({
-    tunnelId: Number, 
+    tunnelId: Number,
     nodeId: Number,
     row: Number,
     col: Number,
+    deviceId: String,
     attributes: {
         name: String,
-        active: String
-    }
+        status: String, // status : active/deactive
+    },
 });
 
 const vertexSchema = new Schema({
