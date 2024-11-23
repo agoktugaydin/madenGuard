@@ -1,0 +1,60 @@
+/* Grid.css */
+
+svg {
+    border: 1px solid #ccc; /* Add border for visualization */
+    height: 1000px;
+    width: 1000px;
+}
+
+.grid-line {
+    stroke: #666565; /* Line color */
+    stroke-width: 1px; /* Line width */
+}
+
+.vertex-line {
+    stroke: blue; /* Vertex line color */
+    stroke-width: 1px; /* Vertex line width */
+}
+
+.border-line {
+  stroke: #000; /* Line color for border lines */
+  stroke-width: 2px; /* Line width for border lines */
+}
+
+.grid-line {
+  stroke: lightgray;
+  stroke-width: 1;
+}
+
+.border-line {
+  stroke: black;
+  stroke-width: 2;
+}
+
+.grid-container-2 {
+  position: relative;
+  flex:0%;
+  height: 100%;
+  width: 100%;}
+
+.grid-container-2 svg {
+  border: 1px solid black;
+  height: 100%;
+  width: 100%;
+}
+
+.rect-selected {
+  fill: black;
+  stroke: gray;
+  stroke-width: 1;
+}
+
+.grid-line {
+  stroke: #ccc;
+  stroke-width: 1;
+}
+
+.border-line {
+  stroke: #000;
+  stroke-width: 2;
+}

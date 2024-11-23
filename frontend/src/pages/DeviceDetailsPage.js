@@ -145,14 +145,14 @@ const DeviceDetailsPage = ({ isLoggedIn }) => {
 
       <DataChart data={data} />
 
-      <Slider
+      {/* <Slider
         value={currentPage}
         onChange={(_, value) => handlePageChange(value)}
         valueLabelDisplay="on"
         min={1}
         max={totalPages}
         step={1}
-      />
+      /> */}
 
       {/* <DataTable data={device} /> */}
 

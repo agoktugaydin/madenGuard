@@ -17,3 +17,5 @@ backend/.env
 data/venv
 
 notes.txt
+
+frontend/src/constants.js

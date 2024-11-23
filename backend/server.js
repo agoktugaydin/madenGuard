@@ -1,4 +1,5 @@
 const express = require('express');
+const https = require('https');
 const http = require('http');
 const WebSocket = require('ws');
 const cors = require('cors');
@@ -8,9 +9,15 @@ const userRoutes = require('./routes/userRoutes');
 const tunnelRoutes = require('./routes/tunnelRoutes');
 const { connectToMongoDB } = require('./config/dbConfig');
 const { saveToTimeSeriesDatabase, updateDeviceStatus, updateIsDeviceConnected } = require('./controllers/dataController');
+const fs = require('fs');
 
 const app = express();
-const server = http.createServer(app);
+const httpServer = http.createServer(app);
+// add ssl to server
+// const httpsServer = https.createServer({
+//     key: fs.readFileSync('./ssl/key.pem'),
+//     cert: fs.readFileSync('./ssl/cert.pem'),
+// }, app);
 // const wss = new WebSocket.Server({ server });
 const wss = new WebSocket.Server({
     host: process.env.HOST,
@@ -132,9 +139,14 @@ app.use('/api', tunnelRoutes);
 
 // Start the server
 const PORT = 3001 //process.env.PORTHTTPS || 3001;
-server.listen(PORT, () => {
+httpServer.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+
+httpsServer.listen(443, () => {
+    console.log('Server is running on port 443');
+}
+);
 
 // Helper functions to manage connected devices
 function getConnectedDevices() {

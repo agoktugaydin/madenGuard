@@ -6,7 +6,7 @@ sio = socketio.AsyncClient()
 
 
 async def send_data():
-    uri = "ws://10.3.12.209:5600"  # Change the WebSocket server address and port
+    uri = "ws://172.20.10.3:5600"  # Change the WebSocket server address and port
     await sio.connect(uri)
 
     device_id_list = [
